@@ -25,6 +25,7 @@ import io.warp10.script.WarpScriptStack;
 import io.warp10.script.WarpScriptStackFunction;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
 public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackFunction {
   
@@ -41,14 +42,31 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
 
     Object o = stack.pop();
 
+    //
+    // Optional param
+    //
+
+    // value that multiply motif size to obtain exclusion zone radius
+    double exclusionZoneRadiusRatio = 0.25;
+    if (o instanceof Double) {
+      exclusionZoneRadiusRatio = ((Number) o).doubleValue();
+      o = stack.pop();
+    }
+
+    //
+    // Mandatory params
+    //
+
     if (!(o instanceof Long)) {
-      throw new WarpScriptException(getName() + "expects a pattern size as second parameter.");
+      throw new WarpScriptException(getName() + "expects a pattern size (LONG) as second parameter.");
     }
     long k = ((Number) o).longValue();
 
     if (k < 2) {
       throw new WarpScriptException(getName() + " 's pattern size must be strictly greater than 1.");
     }
+
+    o = stack.pop();
 
     if (!(o instanceof GeoTimeSerie)) {
       throw new WarpScriptException(getName() + " expects a GTS as first parameter.");
@@ -68,6 +86,9 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
       throw new WarpScriptException(getName() + " can only be applied to a GTS that is bucketized and filled.");
     }
 
+    // sorting
+    GTSHelper.sort(gts);
+
     // number of vectors
     int p = gts.size() - (int) k + 1;
     
@@ -80,16 +101,33 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
     double[] stds = new double[p];
 
     // mean
-    BigDecimal olderSample = BigDecimal.valueOf(getValue(gts, 0));
-    BigDecimal sum = BigDecimal.ZERO;
+    // BigDecimal olderSample = BigDecimal.valueOf(getValue(gts, 0));
 
     // std (welford algorithm)
-    BigDecimal m = olderSample;
-    BigDecimal new_m;
-    BigDecimal s = BigDecimal.ZERO;
+    // BigDecimal m = olderSample;
+    // BigDecimal new_m;
+    // BigDecimal s = BigDecimal.ZERO;
     
     for (int i = 0; i < p; i++) {
 
+      // standard
+      BigDecimal sum = BigDecimal.ZERO;
+      BigDecimal sumsq = BigDecimal.ZERO;
+      for (int j = i; j < i + k; j++) {
+        BigDecimal bd;
+        bd = BigDecimal.valueOf(((Number) GTSHelper.valueAtIndex(gts, j)).doubleValue());
+        sum = sum.add(BigDecimal.valueOf(((Number) GTSHelper.valueAtIndex(gts, j)).doubleValue()));
+        sumsq = sumsq.add(bd.multiply(bd));
+      }
+
+      BigDecimal bdk = BigDecimal.valueOf(k);
+      means[i] = sum.divide(bdk, BigDecimal.ROUND_HALF_UP).doubleValue();
+      double variance = sumsq.divide(bdk, BigDecimal.ROUND_HALF_UP).subtract(sum.multiply(sum).divide(bdk.multiply(bdk), BigDecimal.ROUND_HALF_UP)).doubleValue();
+      stds[i] = Math.sqrt(variance);
+
+      // todo: using running stat should be faster (need debug)
+      /*
+      BigDecimal sum = BigDecimal.ZERO;
       if (0 == i){
 
         for (int j = 0; j < k; j++) {
@@ -110,7 +148,7 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
         stds[0] = Math.sqrt(s.divide(BigDecimal.valueOf(k - 1), BigDecimal.ROUND_HALF_UP).doubleValue());
 
       } else {
-        BigDecimal newerSample = BigDecimal.valueOf(getValue(gts, i + p - 1));
+        BigDecimal newerSample = BigDecimal.valueOf(getValue(gts, i + (int) k - 1));
 
         // mean
         sum = sum.subtract(olderSample);
@@ -138,20 +176,22 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
 
         // update for next iteration
         olderSample = BigDecimal.valueOf(getValue(gts, i));
-      }
+      }*/
     }
     
     //
     // Matrix profile
     // We compute it full row by full row to keep the space complexity linear
     //
+    //todo: can be optimized by traversing by each diagonal of upper triangle and using symmetry
 
     GeoTimeSerie res = gts.cloneEmpty(p);
     GTSHelper.rename(res, gts.getName() + "::profile");
 
     double[] dotCache = new double[p];
+    double[] dotCache2 = new double[p];
     double[] dotRowInit = new double[p];
-
+    
     // loop on each row
     for (int i = 0; i < p; i++) {
       double rowMinValue = Double.MAX_VALUE;
@@ -160,14 +200,19 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
       // loop on each col
       for (int j = 0; j < p; j++) {
 
+        // exclusion zone
+        if (Math.abs(j - i) < k * exclusionZoneRadiusRatio) {
+          continue;
+        }
+
         // dot product
         double dot = 0;
         if (0 == i) {
 
           for (int l = 0; l < k; l++) {
             dot += getValue(gts, i + l) * getValue(gts, j + l);
-            dotRowInit[j] = dot;
           }
+          dotRowInit[j] = dot;
 
         } else {
 
@@ -181,23 +226,18 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
           }
         }
 
-        dotCache[j] = dot;
-
-        // ignore diagonal
-        if (j == i) {
-          continue;
-        }
+        dotCache2[j] = dot;
+        //System.out.println(dot);
 
         // distance
-        double d = 1.0D - (dot - k * means[i] * means[j]) / k * stds[i] * stds[j];
-        d = 2.0D * k * d;
-        d = Math.sqrt(d);
+        double d = 1.0D - (dot - k * means[i] * means[j]) / (k * stds[i] * stds[j]);
+        //d = 2.0D * k * d;
+        //d = Math.sqrt(d);
 
         // compare and update min
-        if (-1 == rowMinIndex || d < rowMinValue) {
+        if (d < rowMinValue) {
           rowMinValue = d;
           rowMinIndex = j;
-
         }
 
         // resolve ties: closest index;
@@ -208,14 +248,19 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
 
       }
 
-      GTSHelper.setValue(gts, GTSHelper.tickAtIndex(gts, i)), GeoTimeSerie.NO_LOCATION, rowMinIndex, rowMinValue);
+      // we read from dotCache and write into dotCache2
+      // after each iteration, we swap the underlying arrays
+      double[] tmp = dotCache;
+      dotCache = dotCache2;
+      dotCache2 = tmp;
+
+      rowMinValue = 2.0D * k * rowMinValue;
+      rowMinValue = Math.sqrt(rowMinValue);
+
+      GTSHelper.setValue(res, GTSHelper.tickAtIndex(gts, i), GeoTimeSerie.NO_LOCATION, GTSHelper.tickAtIndex(gts,rowMinIndex), rowMinValue, false);
     }
 
-
-
-
-
-
+    stack.push(res);
 
     return stack;
   }
