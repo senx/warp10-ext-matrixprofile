@@ -1,5 +1,5 @@
 //
-//   Copyright 2019 - 2021  SenX S.A.S.
+//   Copyright 2021 - 2022  SenX S.A.S.
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
@@ -22,15 +22,15 @@ import java.util.Map;
 import io.warp10.warp.sdk.WarpScriptExtension;
 
 public class MatrixProfileExtension extends WarpScriptExtension {
-  
+
   private static final Map<String,Object> functions;
-  
+
   static {
     functions = new HashMap<String,Object>();
-    
+
     functions.put("PROFILE", new PROFILE("PROFILE"));
   }
-  
+
   @Override
   public Map<String, Object> getFunctions() {
     return functions;
