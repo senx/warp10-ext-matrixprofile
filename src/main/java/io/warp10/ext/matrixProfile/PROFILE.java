@@ -145,8 +145,8 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
     GTSHelper.rename(res, gts.getName() + "::profile");
 
     // loop
-    int exclusionRadiusExclusive = ((Double) Math.ceil(k * exclusionZoneRadiusRatio)).intValue();
-    for (int t = exclusionRadiusExclusive; t < p; t++) {
+    int firstDiagNotInExclusionZone = ((Double) Math.ceil(k * exclusionZoneRadiusRatio)).intValue();
+    for (int t = firstDiagNotInExclusionZone; t < p; t++) {
 
       double dot = 0.0D;
       for (int j = t; j < p; j++) {

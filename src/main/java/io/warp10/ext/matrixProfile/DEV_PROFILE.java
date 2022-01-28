@@ -27,7 +27,7 @@ import io.warp10.script.WarpScriptStackFunction;
 import java.math.BigDecimal;
 
 /**
- * Developpemnt version
+ * Development version
  * The algorithm for computing the matrix profile in this class is similarity search on each row.
  * It is slower than STOMP implemented in PROFILE
  * This draft can be reused for computing other functions.
