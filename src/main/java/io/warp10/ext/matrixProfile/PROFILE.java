@@ -148,8 +148,12 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
     int firstDiagNotInExclusionZone = ((Double) Math.ceil(k * exclusionZoneRadiusRatio)).intValue();
     for (int t = firstDiagNotInExclusionZone; t < p; t++) {
 
+      // dot product variable use for one diagonal traversal
       double dot = 0.0D;
+
       for (int j = t; j < p; j++) {
+
+        // working on row i and col j, both are incremented each iteration
         int i = j - t;
 
         // first row of the matrix: we compute dot product fully
