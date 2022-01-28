@@ -29,6 +29,7 @@ public class MatrixProfileExtension extends WarpScriptExtension {
     functions = new HashMap<String,Object>();
 
     functions.put("PROFILE", new PROFILE("PROFILE"));
+    functions.put("FLUSS", new FLUSS("FLUSS"));
   }
 
   @Override

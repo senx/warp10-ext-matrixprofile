@@ -58,12 +58,12 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
     //
 
     if (!(o instanceof Long)) {
-      throw new WarpScriptException(getName() + "expects a pattern size (LONG) as second parameter.");
+      throw new WarpScriptException(getName() + "expects a subsequence size (LONG) as second parameter.");
     }
     long k = ((Number) o).longValue();
 
     if (k < 2) {
-      throw new WarpScriptException(getName() + " 's pattern size must be strictly greater than 1.");
+      throw new WarpScriptException(getName() + " 's subsequence size must be strictly greater than 1.");
     }
 
     o = stack.pop();
