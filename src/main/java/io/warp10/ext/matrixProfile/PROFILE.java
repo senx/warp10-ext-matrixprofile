@@ -141,7 +141,7 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
     }
 
     // meta
-    res.safeSetMetadata(gts.getMetadata());
+    res.setMetadata(gts.getMetadata());
     GTSHelper.rename(res, gts.getName() + "::profile");
 
     // loop
