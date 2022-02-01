@@ -22,6 +22,7 @@ import io.warp10.continuum.gts.GTSHelper;
 import io.warp10.script.NamedWarpScriptFunction;
 import io.warp10.script.WarpScriptException;
 import io.warp10.script.WarpScriptStack;
+import io.warp10.script.WarpScriptStack.Macro;
 import io.warp10.script.WarpScriptStackFunction;
 
 import java.math.BigDecimal;
@@ -44,6 +45,13 @@ public class MP_ROW extends NamedWarpScriptFunction implements WarpScriptStackFu
     //
     // Optional param
     //
+
+    // custom macro
+    Macro macro = null;
+    if (o instanceof Macro) {
+      macro = (Macro) o;
+      o = stack.pop();
+    }
 
     // value that multiply motif size to obtain exclusion zone radius
     double exclusionZoneRadiusRatio = 0.25;
@@ -107,28 +115,33 @@ public class MP_ROW extends NamedWarpScriptFunction implements WarpScriptStackFu
     //
 
     // compute means and std of each vectors
-    double[] means = new double[p];
-    double[] stds = new double[p];
+    double[] means = null;
+    double[] stds = null;
 
-    for (int i = 0; i < p; i++) {
+    if (null == macro) {
+      means = new double[p];
+      stds = new double[p];
 
-      // standard
-      BigDecimal sum = BigDecimal.ZERO;
-      BigDecimal sumsq = BigDecimal.ZERO;
+      for (int i = 0; i < p; i++) {
 
-      // todo: this part can be optimised using running stats computation formulas
+        // standard
+        BigDecimal sum = BigDecimal.ZERO;
+        BigDecimal sumsq = BigDecimal.ZERO;
 
-      for (int j = i; j < i + k; j++) {
-        BigDecimal bd;
-        bd = BigDecimal.valueOf(((Number) GTSHelper.valueAtIndex(gts, j)).doubleValue());
-        sum = sum.add(BigDecimal.valueOf(((Number) GTSHelper.valueAtIndex(gts, j)).doubleValue()));
-        sumsq = sumsq.add(bd.multiply(bd));
+        // todo: this part can be optimised using running stats computation formulas
+
+        for (int j = i; j < i + k; j++) {
+          BigDecimal bd;
+          bd = BigDecimal.valueOf(((Number) GTSHelper.valueAtIndex(gts, j)).doubleValue());
+          sum = sum.add(BigDecimal.valueOf(((Number) GTSHelper.valueAtIndex(gts, j)).doubleValue()));
+          sumsq = sumsq.add(bd.multiply(bd));
+        }
+
+        BigDecimal bdk = BigDecimal.valueOf(k);
+        means[i] = sum.divide(bdk, BigDecimal.ROUND_HALF_UP).doubleValue();
+        double variance = sumsq.divide(bdk, BigDecimal.ROUND_HALF_UP).subtract(sum.multiply(sum).divide(bdk.multiply(bdk), BigDecimal.ROUND_HALF_UP)).doubleValue();
+        stds[i] = Math.sqrt(variance);
       }
-
-      BigDecimal bdk = BigDecimal.valueOf(k);
-      means[i] = sum.divide(bdk, BigDecimal.ROUND_HALF_UP).doubleValue();
-      double variance = sumsq.divide(bdk, BigDecimal.ROUND_HALF_UP).subtract(sum.multiply(sum).divide(bdk.multiply(bdk), BigDecimal.ROUND_HALF_UP)).doubleValue();
-      stds[i] = Math.sqrt(variance);
     }
 
     // initialization
@@ -149,21 +162,38 @@ public class MP_ROW extends NamedWarpScriptFunction implements WarpScriptStackFu
         continue;
       }
 
-      //
-      // Dot product
-      //
+      if (null == macro) {
 
-      double dot = 0.0D;
-      for (int j = 0; j < k; j++) {
-        dot += getValue(gts, bucketIndex + j) * getValue(gts, i + j);
+        //
+        // Dot product
+        //
+
+        double dot = 0.0D;
+        for (int j = 0; j < k; j++) {
+          dot += getValue(gts, bucketIndex + j) * getValue(gts, i + j);
+        }
+
+        // distance
+        double d = 1.0D - (dot - k * means[bucketIndex] * means[i]) / (k * stds[bucketIndex] * stds[i]);
+        d = 2.0D * k * d;
+        d = Math.sqrt(d);
+
+        GTSHelper.setValue(res, GTSHelper.tickAtIndex(gts, i), GeoTimeSerie.NO_LOCATION, i, d, false);
+
+      } else {
+
+        GeoTimeSerie base = gts.cloneEmpty((int) k);
+        GeoTimeSerie current = gts.cloneEmpty((int) k);
+        for (int j = 0; j < k; j++) {
+          GTSHelper.setValue(base, GTSHelper.tickAtIndex(gts, bucketIndex + j), GTSHelper.locationAtIndex(gts, bucketIndex + j), GTSHelper.elevationAtIndex(gts, bucketIndex + j), GTSHelper.valueAtIndex(gts, bucketIndex + j), false);
+          GTSHelper.setValue(current, GTSHelper.tickAtIndex(gts, i + j), GTSHelper.locationAtIndex(gts, i + j), GTSHelper.elevationAtIndex(gts, i + j), GTSHelper.valueAtIndex(gts, i + j), false);
+        }
+        stack.push(base);
+        stack.push(current);
+        stack.exec(macro);
+        Object d = stack.pop();
+        GTSHelper.setValue(res, GTSHelper.tickAtIndex(gts, i), GeoTimeSerie.NO_LOCATION, i, d, false);
       }
-
-      // distance
-      double d = 1.0D - (dot - k * means[bucketIndex] * means[i]) / (k * stds[bucketIndex] * stds[i]);
-      d = 2.0D * k * d;
-      d = Math.sqrt(d);
-
-      GTSHelper.setValue(res, GTSHelper.tickAtIndex(gts, i), GeoTimeSerie.NO_LOCATION, i, d, false);
     }
 
     stack.push(res);
