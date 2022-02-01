@@ -99,7 +99,7 @@ public class SUBSEQUENCE extends NamedWarpScriptFunction implements WarpScriptSt
     //
 
     for (int i = 0; i < k; i++) {
-      GTSHelper.setValue(gts, GTSHelper.tickAtIndex(gts, bucketIndex + i), GeoTimeSerie.NO_LOCATION, GeoTimeSerie.NO_ELEVATION, getValue(gts, bucketIndex + i), false);
+      GTSHelper.setValue(res, GTSHelper.tickAtIndex(gts, bucketIndex + i), GeoTimeSerie.NO_LOCATION, GeoTimeSerie.NO_ELEVATION, getValue(gts, bucketIndex + i), false);
     }
 
     stack.push(res);
