@@ -163,7 +163,7 @@ public class MP_ROW extends NamedWarpScriptFunction implements WarpScriptStackFu
       d = 2.0D * k * d;
       d = Math.sqrt(d);
 
-      GTSHelper.setValue(res, GTSHelper.tickAtIndex(gts, i), GeoTimeSerie.NO_LOCATION, GeoTimeSerie.NO_ELEVATION, d, false);
+      GTSHelper.setValue(res, GTSHelper.tickAtIndex(gts, i), GeoTimeSerie.NO_LOCATION, i, d, false);
     }
 
     stack.push(res);
