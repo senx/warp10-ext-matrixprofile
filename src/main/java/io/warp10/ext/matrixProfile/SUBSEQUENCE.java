@@ -24,6 +24,9 @@ import io.warp10.script.WarpScriptException;
 import io.warp10.script.WarpScriptStack;
 import io.warp10.script.WarpScriptStackFunction;
 
+/**
+ * Helper function to get a subsequence GTS starting at a given index and with a given length
+ */
 public class SUBSEQUENCE extends NamedWarpScriptFunction implements WarpScriptStackFunction {
 
   public SUBSEQUENCE(String name) {

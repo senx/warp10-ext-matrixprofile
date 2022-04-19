@@ -27,6 +27,10 @@ import io.warp10.script.WarpScriptStackFunction;
 import java.io.IOException;
 import java.math.BigDecimal;
 
+/**
+ * Compute the Matrix Profile GTS using the STOMP algorithm
+ * Store the row argmin in the elevation (value is the row min)
+ */
 public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackFunction {
 
   public PROFILE(String name) {

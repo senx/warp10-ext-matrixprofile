@@ -27,6 +27,9 @@ import io.warp10.script.WarpScriptStackFunction;
 
 import java.math.BigDecimal;
 
+/**
+ * Compute a Row of the matrix profile, that is the standardised auto correlation wrt a certain distance macro
+ */
 public class ROW extends NamedWarpScriptFunction implements WarpScriptStackFunction {
 
   public ROW(String name) {
