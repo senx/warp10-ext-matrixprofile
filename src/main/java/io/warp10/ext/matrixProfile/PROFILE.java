@@ -66,11 +66,10 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
 
     // custom distance macro
     WarpScriptStack.Macro distance = null;
-    if (!(o instanceof WarpScriptStack.Macro)) {
-      throw new WarpScriptException(getName() + "expects a distance MACRO as third parameter.");
+    if (o instanceof WarpScriptStack.Macro) {
+      distance = (WarpScriptStack.Macro) o;
+      o = stack.pop();
     }
-    distance = (WarpScriptStack.Macro) o;
-    o = stack.pop();
 
     // value that multiply motif size to obtain exclusion zone radius
     double exclusionZoneRadiusRatio = 0.25;
