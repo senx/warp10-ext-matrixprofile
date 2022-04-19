@@ -33,7 +33,7 @@ public class SUBSEQUENCE extends NamedWarpScriptFunction implements WarpScriptSt
     super(name);
   }
 
-  private double getValue(GeoTimeSerie gts, int index) {
+  private static double getValue(GeoTimeSerie gts, int index) {
     return ((Number) GTSHelper.valueAtIndex(gts, index)).doubleValue();
   }
 
@@ -88,25 +88,42 @@ public class SUBSEQUENCE extends NamedWarpScriptFunction implements WarpScriptSt
       throw new WarpScriptException(getName() + " error: this bucket index can not start a subsequence of length " + k + ".");
     }
 
+    // push result
+    stack.push(subsequence(gts, (int) k, bucketIndex));
+
+    return stack;
+  }
+
+  public static GeoTimeSerie subsequence(GeoTimeSerie gts, int k, int startIndex) throws WarpScriptException {
+    GeoTimeSerie res;
+
     // initialization
-    long bucketspan = GTSHelper.getBucketSpan(gts);
-    long lastbucket = GTSHelper.tickAtIndex(gts, bucketIndex + (int) k - 1);
-    GeoTimeSerie res = new GeoTimeSerie(lastbucket, (int) k, bucketspan, (int) k);
+    if (GTSHelper.isBucketized(gts)) {
+      long bucketspan = GTSHelper.getBucketSpan(gts);
+      long lastbucket = GTSHelper.tickAtIndex(gts, startIndex + k - 1);
+      res = new GeoTimeSerie(lastbucket, k, bucketspan, k);
+
+    } else {
+      res = new GeoTimeSerie(k);
+    }
 
     // meta
     res.setMetadata(gts.getMetadata());
-    GTSHelper.rename(res, gts.getName() + "::subsequence::" + bucketIndex);
+    GTSHelper.rename(res, gts.getName() + "::subsequence::" + startIndex);
 
     //
     // Fill res
     //
 
     for (int i = 0; i < k; i++) {
-      GTSHelper.setValue(res, GTSHelper.tickAtIndex(gts, bucketIndex + i), GeoTimeSerie.NO_LOCATION, GeoTimeSerie.NO_ELEVATION, getValue(gts, bucketIndex + i), false);
+      long tick = GTSHelper.tickAtIndex(gts,startIndex + i);
+      long location = gts.hasLocations() ? GTSHelper.locationAtIndex(gts, startIndex + i) : GeoTimeSerie.NO_LOCATION;
+      long elevation = gts.hasElevations() ? GTSHelper.elevationAtIndex(gts, startIndex + i) : GeoTimeSerie.NO_ELEVATION;
+      Object value = getValue(gts, startIndex + i);
+
+      GTSHelper.setValue(res, tick, location, elevation, value, false);
     }
 
-    stack.push(res);
-
-    return stack;
+    return res;
   }
 }

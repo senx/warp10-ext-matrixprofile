@@ -33,8 +33,22 @@ import java.math.BigDecimal;
  */
 public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackFunction {
 
-  public PROFILE(String name) {
+  public enum Version {
+    CLASSIC,
+    ROBUST
+  }
+
+  private Version version;
+  public Version getVersion() {
+    return version;
+  }
+
+  public PROFILE(String name, Version version) {
     super(name);
+    this.version = version;
+  }
+  public PROFILE(String name) {
+    this(name, Version.CLASSIC);
   }
 
   private double getValue(GeoTimeSerie gts, int index) {
@@ -49,6 +63,14 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
     //
     // Optional param
     //
+
+    // custom distance macro
+    WarpScriptStack.Macro distance = null;
+    if (!(o instanceof WarpScriptStack.Macro)) {
+      throw new WarpScriptException(getName() + "expects a distance MACRO as third parameter.");
+    }
+    distance = (WarpScriptStack.Macro) o;
+    o = stack.pop();
 
     // value that multiply motif size to obtain exclusion zone radius
     double exclusionZoneRadiusRatio = 0.25;
@@ -97,32 +119,36 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
     int p = gts.size() - (int) k + 1;
 
     //
-    // Means and Std of each vectors
+    // Precompute Means and Std of each vectors
     //
 
-    // compute means and std of each vectors
-    double[] means = new double[p];
-    double[] stds = new double[p];
+    double[] means = null;
+    double[] stds = null;
 
-    for (int i = 0; i < p; i++) {
+    if (null == distance) {
+      means = new double[p];
+      stds = new double[p];
 
-      // standard
-      BigDecimal sum = BigDecimal.ZERO;
-      BigDecimal sumsq = BigDecimal.ZERO;
+      for (int i = 0; i < p; i++) {
 
-      // todo: this part can be optimised using running stats computation formulas
+        // standard
+        BigDecimal sum = BigDecimal.ZERO;
+        BigDecimal sumsq = BigDecimal.ZERO;
 
-      for (int j = i; j < i + k; j++) {
-        BigDecimal bd;
-        bd = BigDecimal.valueOf(((Number) GTSHelper.valueAtIndex(gts, j)).doubleValue());
-        sum = sum.add(BigDecimal.valueOf(((Number) GTSHelper.valueAtIndex(gts, j)).doubleValue()));
-        sumsq = sumsq.add(bd.multiply(bd));
+        // todo: this part can be optimised using running stats computation formulas
+
+        for (int j = i; j < i + k; j++) {
+          BigDecimal bd;
+          bd = BigDecimal.valueOf(((Number) GTSHelper.valueAtIndex(gts, j)).doubleValue());
+          sum = sum.add(BigDecimal.valueOf(((Number) GTSHelper.valueAtIndex(gts, j)).doubleValue()));
+          sumsq = sumsq.add(bd.multiply(bd));
+        }
+
+        BigDecimal bdk = BigDecimal.valueOf(k);
+        means[i] = sum.divide(bdk, BigDecimal.ROUND_HALF_UP).doubleValue();
+        double variance = sumsq.divide(bdk, BigDecimal.ROUND_HALF_UP).subtract(sum.multiply(sum).divide(bdk.multiply(bdk), BigDecimal.ROUND_HALF_UP)).doubleValue();
+        stds[i] = Math.sqrt(variance);
       }
-
-      BigDecimal bdk = BigDecimal.valueOf(k);
-      means[i] = sum.divide(bdk, BigDecimal.ROUND_HALF_UP).doubleValue();
-      double variance = sumsq.divide(bdk, BigDecimal.ROUND_HALF_UP).subtract(sum.multiply(sum).divide(bdk.multiply(bdk), BigDecimal.ROUND_HALF_UP)).doubleValue();
-      stds[i] = Math.sqrt(variance);
     }
 
     //
@@ -157,25 +183,37 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
 
       for (int j = t; j < p; j++) {
 
+        // distance
+        double d;
+
         // working on row i and col j, both are incremented each iteration
         int i = j - t;
 
-        // first row of the matrix: we compute dot product fully
-        if (0 == i) {
-          for (int l = 0; l < k; l++) {
-            dot += getValue(gts, i + l) * getValue(gts, j + l);
+        if (null == distance) {
+          // first row of the matrix: we compute dot product fully
+          if (0 == i) {
+            for (int l = 0; l < k; l++) {
+              dot += getValue(gts, i + l) * getValue(gts, j + l);
+            }
+
+          } else {
+            // other rows: we use previous diagonal dot product
+            dot -= getValue(gts, i - 1) * getValue(gts, j - 1);
+            dot += getValue(gts, i + (int) k - 1) * getValue(gts, j + (int) k - 1);
           }
 
-        } else {
-          // other rows: we use previous diagonal dot product
-          dot -= getValue(gts, i - 1) * getValue(gts, j - 1);
-          dot += getValue(gts, i + (int) k - 1) * getValue(gts, j + (int) k - 1);
-        }
+          // distance
+          d = 1.0D - (dot - k * means[i] * means[j]) / (k * stds[i] * stds[j]);
+          d = 2.0D * k * d;
+          d = Math.sqrt(d);
 
-        // distance
-        double d = 1.0D - (dot - k * means[i] * means[j]) / (k * stds[i] * stds[j]);
-        d = 2.0D * k * d;
-        d = Math.sqrt(d);
+        } else {
+          stack.push(SUBSEQUENCE.subsequence(gts, (int) k ,i));
+          stack.push(SUBSEQUENCE.subsequence(gts, (int) k ,j));
+          stack.exec(distance);
+
+          d = ((Number) stack.pop()).doubleValue();
+        }
 
         // compare and set
         // in case of tie: closest index since we see lower diagonal first

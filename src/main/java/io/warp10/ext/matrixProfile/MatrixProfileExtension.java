@@ -30,6 +30,8 @@ public class MatrixProfileExtension extends WarpScriptExtension {
 
     functions.put("MP", new PROFILE("MP"));
     functions.put("PROFILE", new PROFILE("PROFILE")); // for compatibility with old name
+    functions.put("MP2", new PROFILE("MP2", PROFILE.Version.ROBUST));
+
     functions.put("MPROW", new ROW("MPROW"));
     functions.put("MPSUB", new SUBSEQUENCE("MPSUB"));
     functions.put("MPFLUSS", new FLUSS("MPFLUSS"));

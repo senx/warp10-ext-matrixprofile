@@ -18,6 +18,7 @@ package io.warp10;
 
 import io.warp10.ext.matrixProfile.MatrixProfileExtension;
 import io.warp10.ext.matrixProfile.DEV_PROFILE;
+import io.warp10.ext.matrixProfile.PROFILE;
 import io.warp10.script.MemoryWarpScriptStack;
 import io.warp10.script.WarpScriptLib;
 import io.warp10.script.WarpScriptStackFunction;
@@ -60,11 +61,23 @@ public class WarpTest {
         "  [ 0.0 2 $N <% DUP RAND 2 * 1 - + %> F FOR ]\n" +
         "  MAKEGTS");
     stack.execMulti("[ SWAP NULL 99 1 100 ] BUCKETIZE 0 GET");
+    Object gts = stack.pop();
+
+    stack.push(gts);
     stack.push(10L);
-    WarpScriptStackFunction PROFILE = new DEV_PROFILE("PROFILE");
+    WarpScriptStackFunction DEV_PROFILE = new DEV_PROFILE("DEV_PROFILE");
+    DEV_PROFILE.apply(stack);
+
+    stack.push(gts);
+    stack.push(10L);
+    WarpScriptStackFunction PROFILE = new PROFILE("PROFILE");
     PROFILE.apply(stack);
 
+    stack.execMulti("- VALUES 0 SWAP <% + %> FOREACH");
+    stack.exec("DUP 1E-4 < ASSERT");
+    stack.exec("DEPTH 1 == ASSERT");
 
+    System.out.println(stack.dump(1));
   }
 
   //@Ignore

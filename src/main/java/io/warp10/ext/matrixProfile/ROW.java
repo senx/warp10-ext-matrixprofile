@@ -185,15 +185,8 @@ public class ROW extends NamedWarpScriptFunction implements WarpScriptStackFunct
 
       } else {
 
-        GeoTimeSerie base = gts.cloneEmpty((int) k);
-        GeoTimeSerie current = gts.cloneEmpty((int) k);
-        for (int j = 0; j < k; j++) {
-          GTSHelper.setValue(base, GTSHelper.tickAtIndex(gts, bucketIndex + j), GTSHelper.locationAtIndex(gts, bucketIndex + j), GTSHelper.elevationAtIndex(gts, bucketIndex + j), GTSHelper.valueAtIndex(gts, bucketIndex + j), false);
-          GTSHelper.setValue(current, GTSHelper.tickAtIndex(gts, i + j), GTSHelper.locationAtIndex(gts, i + j), GTSHelper.elevationAtIndex(gts, i + j), GTSHelper.valueAtIndex(gts, i + j), false);
-        }
-        stack.push(base);
-        stack.push(current);
-        stack.exec(macro);
+        stack.push(SUBSEQUENCE.subsequence(gts, (int) k ,bucketIndex));
+        stack.push(SUBSEQUENCE.subsequence(gts, (int) k ,i));
         Object d = stack.pop();
         GTSHelper.setValue(res, GTSHelper.tickAtIndex(gts, i), GeoTimeSerie.NO_LOCATION, i, d, false);
       }
