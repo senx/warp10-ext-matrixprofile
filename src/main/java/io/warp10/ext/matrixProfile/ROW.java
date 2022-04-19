@@ -27,9 +27,9 @@ import io.warp10.script.WarpScriptStackFunction;
 
 import java.math.BigDecimal;
 
-public class MP_ROW extends NamedWarpScriptFunction implements WarpScriptStackFunction {
+public class ROW extends NamedWarpScriptFunction implements WarpScriptStackFunction {
 
-  public MP_ROW(String name) {
+  public ROW(String name) {
     super(name);
   }
 
