@@ -39,8 +39,8 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
   }
 
   private Version version;
-  public Version getVersion() {
-    return version;
+  public boolean isRobust() {
+    return version.equals(Version.ROBUST);
   }
 
   public PROFILE(String name, Version version) {
@@ -169,6 +169,17 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
       ticks[i] = lastbucket - (p - 1 - i) * bucketspan;
     }
 
+    // optional data (robust case)
+    double[] rowMin2Value = null;
+    long[] rowMin2Index = null;
+    if (isRobust()) {
+      rowMin2Value = new double[p];
+      rowMin2Index = new long[p];
+      for (int i = 0; i < p; i++) {
+        rowMin2Value[i] = Double.MAX_VALUE;
+      }
+    }
+
     // meta
     res.setMetadata(gts.getMetadata());
     GTSHelper.rename(res, gts.getName() + "::profile");
@@ -219,18 +230,24 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
         if (d < rowMinValue[i]) {
           rowMinValue[i] = d;
           rowMinIndex[i] = j;
+        } else if (isRobust() && d < rowMin2Value[i]) {
+          rowMin2Value[i] = d;
+          rowMin2Index[i] = j;
         }
 
         // symmetrical
         if (d < rowMinValue[j]) {
           rowMinValue[j] = d;
           rowMinIndex[j] = i;
+        } else if (isRobust() && d < rowMin2Value[j]) {
+          rowMin2Value[j] = d;
+          rowMin2Index[j] = i;
         }
       }
     }
 
     try {
-      res.reset(ticks, null, rowMinIndex, rowMinValue, p);
+      res.reset(ticks, null, isRobust() ? rowMin2Index : rowMinIndex, isRobust() ? rowMin2Value : rowMinValue, p);
     } catch (IOException e) {
       throw new WarpScriptException(e);
     }
