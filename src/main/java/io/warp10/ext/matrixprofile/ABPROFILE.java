@@ -59,7 +59,7 @@ public class ABPROFILE extends NamedWarpScriptFunction implements WarpScriptStac
     }
 
     // value that multiply motif size to obtain exclusion zone radius
-    double exclusionZoneRadiusRatio = 0.25;
+    double exclusionZoneRadiusRatio = 0.0;
     if (o instanceof Double) {
       exclusionZoneRadiusRatio = ((Number) o).doubleValue();
       o = stack.pop();
@@ -200,8 +200,13 @@ public class ABPROFILE extends NamedWarpScriptFunction implements WarpScriptStac
     //
 
     for (int i = 0; i < p1; i++) {
+
+      double dmin = Double.MAX_VALUE;
+      double d;
+      int argmin = -1;
+
       for (int j = 0; j < p2; j++) {
-        if (Math.abs(i - j) <= k * exclusionZoneRadiusRatio) {
+        if (Math.abs(i - j) < k * exclusionZoneRadiusRatio) {
           continue;
         }
 
@@ -217,20 +222,25 @@ public class ABPROFILE extends NamedWarpScriptFunction implements WarpScriptStac
           }
 
           // distance
-          double d = 1.0D - (dot - k * means1[i] * means2[j]) / (k * stds1[i] * stds2[j]);
+          d = 1.0D - (dot - k * means1[i] * means2[j]) / (k * stds1[i] * stds2[j]);
           d = 2.0D * k * d;
           d = Math.sqrt(d);
-
-          GTSHelper.setValue(res, GTSHelper.tickAtIndex(gts1, j), GeoTimeSerie.NO_LOCATION, j, d, false);
 
         } else {
 
           stack.push(ATBUCKETINDEX.subsequence(gts1, (int) k ,i));
           stack.push(ATBUCKETINDEX.subsequence(gts2, (int) k ,j));
-          Object d = stack.pop();
-          GTSHelper.setValue(res, GTSHelper.tickAtIndex(gts1, j), GeoTimeSerie.NO_LOCATION, j, d, false);
+          stack.exec(macro);
+          d = ((Number) stack.pop()).doubleValue();
+        }
+
+        if (d < dmin) {
+          dmin = d;
+          argmin = j;
         }
       }
+
+      GTSHelper.setValue(res, GTSHelper.tickAtIndex(gts1, argmin), GeoTimeSerie.NO_LOCATION, argmin, dmin, false);
     }
 
     stack.push(res);

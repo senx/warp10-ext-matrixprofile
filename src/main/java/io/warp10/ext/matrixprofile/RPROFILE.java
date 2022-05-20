@@ -187,6 +187,7 @@ public class RPROFILE extends NamedWarpScriptFunction implements WarpScriptStack
 
         stack.push(ATBUCKETINDEX.subsequence(gts, (int) k ,bucketIndex));
         stack.push(ATBUCKETINDEX.subsequence(gts, (int) k ,i));
+        stack.exec(macro);
         Object d = stack.pop();
         GTSHelper.setValue(res, GTSHelper.tickAtIndex(gts, i), GeoTimeSerie.NO_LOCATION, i, d, false);
       }
