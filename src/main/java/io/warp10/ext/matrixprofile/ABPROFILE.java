@@ -16,6 +16,7 @@
 
 package io.warp10.ext.matrixprofile;
 
+import io.warp10.WarpConfig;
 import io.warp10.continuum.gts.GeoTimeSerie.TYPE;
 import io.warp10.continuum.gts.GeoTimeSerie;
 import io.warp10.continuum.gts.GTSHelper;
@@ -24,6 +25,7 @@ import io.warp10.script.WarpScriptException;
 import io.warp10.script.WarpScriptStack;
 import io.warp10.script.WarpScriptStack.Macro;
 import io.warp10.script.WarpScriptStackFunction;
+import io.warp10.warp.sdk.Capabilities;
 
 import java.math.BigDecimal;
 
@@ -116,6 +118,20 @@ public class ABPROFILE extends NamedWarpScriptFunction implements WarpScriptStac
 
     if (gts1.size() != GTSHelper.getBucketCount(gts1)) {
       throw new WarpScriptException(getName() + " can only be applied to a GTS that is bucketized and filled.");
+    }
+
+    // maxsize check
+    long maxsize = MatrixProfileWarpScriptExtension.DEFAULT_VALUE_MP_ABPROFILE_MAXSIZE;
+    if (null != WarpConfig.getProperty(MatrixProfileWarpScriptExtension.CONFIG_MP_ABPROFILE_MAXSIZE)) {
+      maxsize = Long.parseLong(WarpConfig.getProperty(MatrixProfileWarpScriptExtension.CONFIG_MP_ABPROFILE_MAXSIZE));
+    }
+    String capValue = Capabilities.get(stack, MatrixProfileWarpScriptExtension.CAPNAME_MP_ABPROFILE_MAXSIZE);
+    if (null != capValue) {
+      maxsize = Long.valueOf(capValue);
+    }
+
+    if (gts1.size() > maxsize || gts2.size() > maxsize) {
+      throw new WarpScriptException("Max size limit for " + getName() + " reached. Consider lower the bucketcount. To raise this limit, use a capable token or contact an administrator.");
     }
 
     // make sure it is sorted

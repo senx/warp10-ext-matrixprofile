@@ -23,6 +23,24 @@ import io.warp10.warp.sdk.WarpScriptExtension;
 
 public class MatrixProfileWarpScriptExtension extends WarpScriptExtension {
 
+  //
+  // Configurations
+  // For each configuration, overriding rules follow when set:
+  // default value < config value < capability value
+  //
+
+  public final static long DEFAULT_VALUE_MP_PROFILE_MAXSIZE = 50000L;
+  public final static String CONFIG_MP_PROFILE_MAXSIZE = "mp.profile.maxsize";
+  public final static String CAPNAME_MP_PROFILE_MAXSIZE = "mp.profile.maxsize.capname";
+
+  public final static long DEFAULT_VALUE_MP_ABPROFILE_MAXSIZE = 10000L;
+  public final static String CONFIG_MP_ABPROFILE_MAXSIZE = "mp.abprofile.maxsize";
+  public final static String CAPNAME_MP_ABPROFILE_MAXSIZE = "mp.abprofile.maxsize.capname";
+
+  //
+  // Functions
+  //
+
   private static final Map<String,Object> functions;
 
   static {
