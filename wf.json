@@ -1,14 +1,14 @@
 {
   "type": "ext",
-  "group": "io.warp10.ext.matrixprofile",
+  "group": "io.warp10",
   "artifact": "warp10-ext-matrixprofile",
-  "version": "0.0.1",
-  "description": "Matrix profile implementation",
+  "version": "0.1.0",
+  "description": "Matrix profile extension",
   "author": "Jean-Charles Vialatte",
   "email": "jean-charles.vialatte@senx.io",
   "license": "Apache-2.0",
   "git": "https://github.com/senx/warp10-ext-matrixprofile",
-  "repoUrl": "https://github.com/senx/warp10-ext-matrixprofile",
+  "repoUrl": "https://repo.maven.apache.org/maven2",
   "tags": [
     "pattern",
     "profile"
