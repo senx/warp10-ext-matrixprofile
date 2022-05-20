@@ -26,7 +26,6 @@ import io.warp10.script.WarpScriptStackFunction;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -274,8 +273,8 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
           d = Math.sqrt(d);
 
         } else {
-          stack.push(SUBSEQUENCE.subsequence(gts, (int) k ,i));
-          stack.push(SUBSEQUENCE.subsequence(gts, (int) k ,j));
+          stack.push(ATBUCKETINDEX.subsequence(gts, (int) k ,i));
+          stack.push(ATBUCKETINDEX.subsequence(gts, (int) k ,j));
           stack.exec(distance);
 
           d = ((Number) stack.pop()).doubleValue();

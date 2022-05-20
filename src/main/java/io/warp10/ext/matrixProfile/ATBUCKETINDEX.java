@@ -27,9 +27,9 @@ import io.warp10.script.WarpScriptStackFunction;
 /**
  * Helper function to get a subsequence GTS starting at a given index and with a given length
  */
-public class SUBSEQUENCE extends NamedWarpScriptFunction implements WarpScriptStackFunction {
+public class ATBUCKETINDEX extends NamedWarpScriptFunction implements WarpScriptStackFunction {
 
-  public SUBSEQUENCE(String name) {
+  public ATBUCKETINDEX(String name) {
     super(name);
   }
 

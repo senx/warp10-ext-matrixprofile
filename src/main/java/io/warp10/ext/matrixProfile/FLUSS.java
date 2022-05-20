@@ -30,6 +30,8 @@ import java.io.IOException;
  */
 public class FLUSS extends NamedWarpScriptFunction implements WarpScriptStackFunction {
 
+  //todo: tests
+
   public FLUSS(String name) {
     super(name);
   }

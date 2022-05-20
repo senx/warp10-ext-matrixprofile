@@ -28,11 +28,11 @@ import io.warp10.script.WarpScriptStackFunction;
 import java.math.BigDecimal;
 
 /**
- * Compute a Row of the matrix profile, that is the standardised auto correlation wrt a certain distance macro
+ * Compute a Row of the matrix profile wrt a certain distance macro
  */
-public class ROW extends NamedWarpScriptFunction implements WarpScriptStackFunction {
+public class RPROFILE extends NamedWarpScriptFunction implements WarpScriptStackFunction {
 
-  public ROW(String name) {
+  public RPROFILE(String name) {
     super(name);
   }
 
@@ -185,8 +185,8 @@ public class ROW extends NamedWarpScriptFunction implements WarpScriptStackFunct
 
       } else {
 
-        stack.push(SUBSEQUENCE.subsequence(gts, (int) k ,bucketIndex));
-        stack.push(SUBSEQUENCE.subsequence(gts, (int) k ,i));
+        stack.push(ATBUCKETINDEX.subsequence(gts, (int) k ,bucketIndex));
+        stack.push(ATBUCKETINDEX.subsequence(gts, (int) k ,i));
         Object d = stack.pop();
         GTSHelper.setValue(res, GTSHelper.tickAtIndex(gts, i), GeoTimeSerie.NO_LOCATION, i, d, false);
       }

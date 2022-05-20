@@ -31,6 +31,7 @@ import java.math.BigDecimal;
  * The algorithm for computing the matrix profile in this class is similarity search on each row.
  * It is slower than STOMP implemented in PROFILE
  * This draft can be reused for computing other functions.
+ * This class can also be used for tests
  */
 public class DEV_PROFILE extends NamedWarpScriptFunction implements WarpScriptStackFunction {
 
