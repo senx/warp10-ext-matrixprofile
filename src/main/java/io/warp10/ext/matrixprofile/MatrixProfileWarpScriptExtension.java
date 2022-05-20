@@ -28,11 +28,11 @@ public class MatrixProfileWarpScriptExtension extends WarpScriptExtension {
   static {
     functions = new HashMap<String,Object>();
 
-    functions.put("ATBUCKETINDEX", new ATBUCKETINDEX("ATBUCKETINDEX"));
-    functions.put("PROFILE", new PROFILE("PROFILE"));
-    functions.put("RPROFILE", new RPROFILE("RPROFILE"));
-    functions.put("ABPROFILE.BETA", new ABPROFILE("ABPROFILE.BETA"));
-    functions.put("FLUSS", new FLUSS("FLUSS"));
+    functions.put("MP.ATBUCKETINDEX", new ATBUCKETINDEX("MP.ATBUCKETINDEX"));
+    functions.put("MP.PROFILE", new PROFILE("MP.PROFILE"));
+    functions.put("MP.RPROFILE", new RPROFILE("MP.RPROFILE"));
+    functions.put("MP.ABPROFILE", new ABPROFILE("MP.ABPROFILE"));
+    functions.put("MP.FLUSS", new FLUSS("MP.FLUSS"));
   }
 
   @Override
