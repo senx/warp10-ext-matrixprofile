@@ -130,6 +130,17 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
       // Second input type
       //
 
+      // default
+      r = 0;
+      distance = null;
+      exclusionZoneRadiusRatio = 0.25;
+
+      // other
+      if (o instanceof Double) {
+        exclusionZoneRadiusRatio = ((Number) o).doubleValue();
+        o = stack.pop();
+      }
+
       if (!(o instanceof Long)) {
         throw new WarpScriptException(getName() + " expects a subsequence size (LONG) as second parameter.");
       }
@@ -142,11 +153,6 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
       }
 
       gts = (GeoTimeSerie) o;
-
-      // optional parameters
-      r = 0;
-      distance = null;
-      exclusionZoneRadiusRatio = 0.25;
     }
 
     //

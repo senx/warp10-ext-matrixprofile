@@ -33,7 +33,7 @@ public class MatrixProfileWarpScriptExtension extends WarpScriptExtension {
   public final static String CONFIG_MP_PROFILE_MAXSIZE = "mp.profile.maxsize";
   public final static String CAPNAME_MP_PROFILE_MAXSIZE = "mp.profile.maxsize.capname";
 
-  public final static long DEFAULT_VALUE_MP_ABPROFILE_MAXSIZE = 10000L;
+  public final static long DEFAULT_VALUE_MP_ABPROFILE_MAXSIZE = 5000L;
   public final static String CONFIG_MP_ABPROFILE_MAXSIZE = "mp.abprofile.maxsize";
   public final static String CAPNAME_MP_ABPROFILE_MAXSIZE = "mp.abprofile.maxsize.capname";
 
