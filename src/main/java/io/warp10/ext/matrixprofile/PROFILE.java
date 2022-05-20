@@ -166,6 +166,11 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
       throw new WarpScriptException(getName() + " can only be applied to a GTS that is bucketized and filled.");
     }
 
+    if (k >= GTSHelper.getBucketCount(gts)) {
+      throw new WarpScriptException(getName() + " requires the subsequence length to be lower than the bucketcount.");
+    }
+
+
     // sorting
     GTSHelper.sort(gts);
 

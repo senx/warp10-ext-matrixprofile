@@ -126,6 +126,10 @@ public class ABPROFILE extends NamedWarpScriptFunction implements WarpScriptStac
     int p1 = gts1.size() - (int) k + 1;
     int p2 = gts2.size() - (int) k + 1;
 
+    if (p1 < 1 || p2 < 1) {
+      throw new WarpScriptException(getName() + " requires the subsequence length to be lower than the number of buckets for both input gts.");
+    }
+
     //
     // Means and Std of each vectors
     //
