@@ -2,7 +2,7 @@
   "type": "ext",
   "group": "io.warp10",
   "artifact": "warp10-ext-matrixprofile",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Matrix profile extension",
   "author": "Jean-Charles Vialatte",
   "email": "jean-charles.vialatte@senx.io",
