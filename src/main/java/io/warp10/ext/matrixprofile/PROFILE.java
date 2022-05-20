@@ -14,7 +14,7 @@
 //   limitations under the License.
 //
 
-package io.warp10.ext.matrixProfile;
+package io.warp10.ext.matrixprofile;
 
 import io.warp10.continuum.gts.GeoTimeSerie.TYPE;
 import io.warp10.continuum.gts.GeoTimeSerie;

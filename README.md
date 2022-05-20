@@ -1,3 +1,3 @@
-# warp10-ext-matrix-profile
+# warp10-ext-matrixprofile
 
-Matrix profile implementation
+Matrix profile extension

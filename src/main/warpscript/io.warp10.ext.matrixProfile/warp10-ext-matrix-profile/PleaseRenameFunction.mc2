@@ -87,9 +87,9 @@ Matrix profile implementation
 
     // if your extension needs more configurations, add the configuration keys in this list:
     'conf' [ ]
-    // your also need to add and document these configuration in your io.warp10.ext.matrixProfile-warp10-ext-matrix-profile.conf file
+    // your also need to add and document these configuration in your io.warp10.ext.matrixprofile-warp10-ext-matrix-profile.conf file
 
-    'ext' 'io.warp10.ext.matrixProfile.PleaseRenameWarpScriptExtension' 
+    'ext' 'io.warp10.ext.matrixprofile.PleaseRenameWarpScriptExtension'
 
   } INFO
   

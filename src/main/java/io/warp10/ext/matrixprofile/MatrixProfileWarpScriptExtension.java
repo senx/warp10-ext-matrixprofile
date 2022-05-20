@@ -14,14 +14,14 @@
 //   limitations under the License.
 //
 
-package io.warp10.ext.matrixProfile;
+package io.warp10.ext.matrixprofile;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import io.warp10.warp.sdk.WarpScriptExtension;
 
-public class MatrixProfileExtension extends WarpScriptExtension {
+public class MatrixProfileWarpScriptExtension extends WarpScriptExtension {
 
   private static final Map<String,Object> functions;
 
