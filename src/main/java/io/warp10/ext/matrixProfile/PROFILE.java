@@ -26,12 +26,21 @@ import io.warp10.script.WarpScriptStackFunction;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Compute the Matrix Profile GTS using the STOMP algorithm
  * Store the row argmin in the elevation (value is the row min)
  */
 public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackFunction {
+
+  public static final String GTS = "gts";
+  public static final String SUBSEQUENCE_LENGTH = "sub.length";
+  //public static final String EXCLUSION_RADIUS = "excl.length";
+  public static final String EXCLUSION_RADIUS_RATIO = "excl.ratio";
+  public static final String SIMILARITY_MEASURE_MACRO = "sm.macro";
+  public static final String ROBUSTNESS_LEVEL = "rob.level";
 
   public enum Version {
     CLASSIC,
@@ -58,46 +67,93 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
   @Override
   public Object apply(WarpScriptStack stack) throws WarpScriptException {
 
+    //
+    // Parameters
+    //
+
+    GeoTimeSerie gts;
+    long k;
+    //long x;
+    double exclusionZoneRadiusRatio;
+    WarpScriptStack.Macro distance;
+    long r;
+
+    //
+    // Two type of signature:
+    //  - a MAP (with optional arguments)
+    //  - or two arguments, gts and subsequence length
+    //
+
     Object o = stack.pop();
+    if (o instanceof Map) {
 
-    //
-    // Optional param
-    //
+      Map params = (Map) o;
 
-    // custom distance macro
-    WarpScriptStack.Macro distance = null;
-    if (o instanceof WarpScriptStack.Macro) {
-      distance = (WarpScriptStack.Macro) o;
+      //
+      // Mandatory params
+      //
+
+      gts = (GeoTimeSerie) params.get(GTS);
+      if (null == gts) {
+        throw new WarpScriptException(getName() + " requires parameter " + GTS);
+      }
+
+      if (null == params.get(SUBSEQUENCE_LENGTH)) {
+        throw new WarpScriptException(getName() + " requires parameter " + SUBSEQUENCE_LENGTH);
+      }
+      k = (long) params.get(SUBSEQUENCE_LENGTH);
+
+      //
+      // Optional parameters
+      //
+
+      if (null == params.get(EXCLUSION_RADIUS_RATIO)) {
+        exclusionZoneRadiusRatio = 0.25;
+      } else {
+        exclusionZoneRadiusRatio = (double) params.get(EXCLUSION_RADIUS_RATIO);
+      }
+
+      // nullable
+      distance = (WarpScriptStack.Macro) params.get(SIMILARITY_MEASURE_MACRO);
+
+      if (null == params.get(ROBUSTNESS_LEVEL)) {
+        r = 0;
+      } else {
+        r = (long) params.get(ROBUSTNESS_LEVEL);
+      }
+
+    } else {
+
+      //
+      // Second input type
+      //
+
+      if (!(o instanceof Long)) {
+        throw new WarpScriptException(getName() + " expects a subsequence size (LONG) as second parameter.");
+      }
+      k = ((Number) o).longValue();
+
       o = stack.pop();
-    }
 
-    // value that multiply motif size to obtain exclusion zone radius
-    double exclusionZoneRadiusRatio = 0.25;
-    if (o instanceof Double) {
-      exclusionZoneRadiusRatio = ((Number) o).doubleValue();
-      o = stack.pop();
+      if (!(o instanceof GeoTimeSerie)) {
+        throw new WarpScriptException(getName() + " expects a GTS as first parameter.");
+      }
+
+      gts = (GeoTimeSerie) o;
+
+      // optional parameters
+      r = 0;
+      distance = null;
+      exclusionZoneRadiusRatio = 0.25;
     }
 
     //
-    // Mandatory params
+    // Sanity checks
     //
-
-    if (!(o instanceof Long)) {
-      throw new WarpScriptException(getName() + "expects a subsequence size (LONG) as second parameter.");
-    }
-    long k = ((Number) o).longValue();
 
     if (k < 2) {
       throw new WarpScriptException(getName() + " 's subsequence size must be strictly greater than 1.");
     }
-
-    o = stack.pop();
-
-    if (!(o instanceof GeoTimeSerie)) {
-      throw new WarpScriptException(getName() + " expects a GTS as first parameter.");
-    }
-
-    GeoTimeSerie gts = (GeoTimeSerie) o;
 
     if (TYPE.DOUBLE != gts.getType()) {
       throw new WarpScriptException(getName() + " can only be applied to GTS with values of type DOUBLE.");
