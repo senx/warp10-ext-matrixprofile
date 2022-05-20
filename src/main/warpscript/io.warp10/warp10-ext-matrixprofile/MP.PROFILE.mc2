@@ -1,0 +1,60 @@
+//
+//   Copyright 2022  SenX S.A.S.
+//
+//   Licensed under the Apache License, Version 2.0 (the "License");
+//   you may not use this file except in compliance with the License.
+//   You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+//   Unless required by applicable law or agreed to in writing, software
+//   distributed under the License is distributed on an "AS IS" BASIS,
+//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//   See the License for the specific language governing permissions and
+//   limitations under the License.
+//
+
+<%
+  {
+    'name' 'MP.PROFILE'
+    'since' '0.1.0'
+    'deprecated' ''
+    'deleted' ''
+    'version' 'all'
+    'tags' [ 'extensions' ]
+    'desc' 
+<'
+Compute the matrix profile of input gts using STOMP algorithm.
+The input GTS must be bucketized and filled.
+The output is a GTS. Its value is the similarity value of the closest subsequence. The argmin is stored in the elevation as the bucket index number.
+'>
+
+    'sig' [ 
+
+      [ [ 'gts:GTS' 'sub.length:LONG' ] REVERSE [ 'result:GTS' ] ]
+      [ [ 'gts:GTS' 'sub.length:LONG' 'excl.ratio:DOUBLE' ] REVERSE [ 'result:GTS' ] ]
+
+      // todo: add map input signature and exposeother optional parameters
+
+    ]
+
+    'params' {
+        'gts' 'input GTS'
+        'sub.length' 'subsequence length'
+        'excl.ratio' 'exclusion zone ratio to sub.length. Default to 0.25'
+        'result' 'the matrix profile'
+    }
+
+    'related' [ 'MP.RPROFILE' 'MP.ABPROFILE' 'MP.FLUSS' '@senx/profile/motifs' '@senx/profile/discords' '@senx/profile/dashboardSpec' ]
+    
+
+    // Examples of your function use. Their could be several examples in the list. 
+    'examples' [ ]
+
+    // if your extension needs more configurations, add the configuration keys in this list:
+    'conf' [ 'mp.profile.maxsize' 'mp.profile.maxsize.capname' ]
+    'ext' 'io.warp10.ext.matrixprofile.MatrixProfileWarpScriptExtension'
+
+  } INFO
+  
+%>
