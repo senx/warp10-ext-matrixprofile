@@ -154,7 +154,7 @@ public class RPROFILE extends NamedWarpScriptFunction implements WarpScriptStack
 
     // meta
     res.setMetadata(gts.getMetadata());
-    GTSHelper.rename(res, gts.getName() + "::mp.row::" + bucketIndex);
+    GTSHelper.rename(res, gts.getName() + "::rprofile::" + bucketIndex);
 
     //
     // Fill res
