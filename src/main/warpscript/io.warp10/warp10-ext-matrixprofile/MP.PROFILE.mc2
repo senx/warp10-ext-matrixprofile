@@ -38,7 +38,7 @@ The elevation is the argmin bucket index that references the most similar subseq
 
       // map input
       [ [ {
-      'robust' 'rob.level:LONG'
+      'robust' 'robust:LONG'
       'macro' 'macro:MACRO'
       'excl.ratio' 'excl.ratio:DOUBLE'
       'sub.length' 'sub.length:LONG'

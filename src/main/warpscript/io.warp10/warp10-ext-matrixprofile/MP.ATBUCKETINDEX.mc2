@@ -38,7 +38,7 @@ The input GTS must be bucketized.
         'gts' 'input GTS'
         'sub.length' 'subsequence length'
         'bucket.index' 'index of the row'
-        'result' 'the matrix profile'
+        'result' 'the sub GTS'
     }
 
     'related' [ 'MP.RPROFILE' ]
