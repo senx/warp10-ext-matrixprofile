@@ -24,9 +24,11 @@
     'tags' [ 'extensions' ]
     'desc' 
 <'
-Compute the matrix profile of input gts using STOMP algorithm.
+Compute the matrix profile of an input gts using STOMP algorithm.
 The input GTS must be bucketized and filled.
-The output is a GTS. Its value is the similarity value of the closest subsequence. The argmin is stored in the elevation as the bucket index number.
+The output is a GTS.
+The value is the matrix profile result.
+The elevation is the argmin bucket index that references the most similar subsequence out of the exclusion range.
 '>
 
     'sig' [ 
@@ -34,14 +36,22 @@ The output is a GTS. Its value is the similarity value of the closest subsequenc
       [ [ 'gts:GTS' 'sub.length:LONG' ] REVERSE [ 'result:GTS' ] ]
       [ [ 'gts:GTS' 'sub.length:LONG' 'excl.ratio:DOUBLE' ] REVERSE [ 'result:GTS' ] ]
 
-      // todo: add map input signature and exposeother optional parameters
-
+      // map input
+      [ [ {
+      'robust' 'rob.level:LONG'
+      'macro' 'macro:MACRO'
+      'excl.ratio' 'excl.ratio:DOUBLE'
+      'sub.length' 'sub.length:LONG'
+      'gts' 'gts:GTS'
+      } ] [ 'result:GTS' ] ]
     ]
 
     'params' {
         'gts' 'input GTS'
         'sub.length' 'subsequence length'
-        'excl.ratio' 'exclusion zone ratio to sub.length. Default to 0.25'
+        'excl.ratio' 'optional exclusion zone ratio to sub.length. Default to 0.25'
+        'macro' 'optional custom macro used for comparing two subsequences. Expects two GTS as input and is expected to output a numerical value.'
+        'robust' 'optional flag. If true, the second minimum will be used to produce the matrix profile.'
         'result' 'the matrix profile'
     }
 

@@ -17,7 +17,6 @@
 package io.warp10.ext.matrixprofile;
 
 import io.warp10.WarpConfig;
-import io.warp10.continuum.Configuration;
 import io.warp10.continuum.gts.GeoTimeSerie.TYPE;
 import io.warp10.continuum.gts.GeoTimeSerie;
 import io.warp10.continuum.gts.GTSHelper;
@@ -37,29 +36,17 @@ import java.util.Map;
  */
 public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackFunction {
 
+  // todo: deprecate excl.ratio to use excl.length instead
+
   public static final String GTS = "gts";
   public static final String SUBSEQUENCE_LENGTH = "sub.length";
   //public static final String EXCLUSION_RADIUS = "excl.length";
   public static final String EXCLUSION_RADIUS_RATIO = "excl.ratio";
-  public static final String SIMILARITY_MEASURE_MACRO = "sm.macro";
-  public static final String ROBUSTNESS_LEVEL = "rob.level";
+  public static final String SIMILARITY_MEASURE_MACRO = "macro";
+  public static final String ROBUSTNESS = "robust";
 
-  public enum Version {
-    CLASSIC,
-    ROBUST
-  }
-
-  private Version version;
-  public boolean isRobust() {
-    return version.equals(Version.ROBUST);
-  }
-
-  public PROFILE(String name, Version version) {
-    super(name);
-    this.version = version;
-  }
   public PROFILE(String name) {
-    this(name, Version.CLASSIC);
+    super(name);
   }
 
   private double getValue(GeoTimeSerie gts, int index) {
@@ -78,7 +65,7 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
     //long x;
     double exclusionZoneRadiusRatio;
     WarpScriptStack.Macro distance;
-    long r;
+    boolean robust;
 
     //
     // Two type of signature:
@@ -118,10 +105,10 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
       // nullable
       distance = (WarpScriptStack.Macro) params.get(SIMILARITY_MEASURE_MACRO);
 
-      if (null == params.get(ROBUSTNESS_LEVEL)) {
-        r = 0;
+      if (null == params.get(ROBUSTNESS)) {
+        robust = false;
       } else {
-        r = (long) params.get(ROBUSTNESS_LEVEL);
+        robust = Boolean.TRUE.equals(params.get(ROBUSTNESS));
       }
 
     } else {
@@ -131,7 +118,7 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
       //
 
       // default
-      r = 0;
+      robust = false;
       distance = null;
       exclusionZoneRadiusRatio = 0.25;
 
@@ -254,7 +241,7 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
     // optional data (robust case)
     double[] rowMin2Value = null;
     long[] rowMin2Index = null;
-    if (isRobust()) {
+    if (robust) {
       rowMin2Value = new double[p];
       rowMin2Index = new long[p];
       for (int i = 0; i < p; i++) {
@@ -312,7 +299,7 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
         if (d < rowMinValue[i]) {
           rowMinValue[i] = d;
           rowMinIndex[i] = j;
-        } else if (isRobust() && d < rowMin2Value[i]) {
+        } else if (robust && d < rowMin2Value[i]) {
           rowMin2Value[i] = d;
           rowMin2Index[i] = j;
         }
@@ -321,7 +308,7 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
         if (d < rowMinValue[j]) {
           rowMinValue[j] = d;
           rowMinIndex[j] = i;
-        } else if (isRobust() && d < rowMin2Value[j]) {
+        } else if (robust && d < rowMin2Value[j]) {
           rowMin2Value[j] = d;
           rowMin2Index[j] = i;
         }
@@ -329,7 +316,7 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
     }
 
     try {
-      res.reset(ticks, null, isRobust() ? rowMin2Index : rowMinIndex, isRobust() ? rowMin2Value : rowMinValue, p);
+      res.reset(ticks, null, robust ? rowMin2Index : rowMinIndex, robust ? rowMin2Value : rowMinValue, p);
     } catch (IOException e) {
       throw new WarpScriptException(e);
     }

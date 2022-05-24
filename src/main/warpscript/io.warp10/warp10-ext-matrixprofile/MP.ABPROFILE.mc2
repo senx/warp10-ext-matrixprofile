@@ -24,11 +24,12 @@
     'tags' [ 'extensions' ]
     'desc' 
 <'
-Compute the AB join in the sense of the matrix profile of two input GTS.
-The input GTS must be bucketized and filled.
-The output is a GTS which metadata are cloned from the first operand.
-The computation is made from the second operand onto the first.
-Its value is the similarity value of the closest subsequence in the second operand. The argmin is stored in the elevation as the bucket index number.
+Computes the AB join in the sense of the matrix profile, that is, this function compares every subsequences in two input GTS.
+Both GTS must be bucketized and filled.
+The output is a GTS.
+Its length and metadata are determined by the first GTS.
+The value is the matrix profile result.
+The elevation is the argmin bucket index that references to the second input GTS.
 '>
 
     'sig' [ 
@@ -42,7 +43,7 @@ Its value is the similarity value of the closest subsequence in the second opera
         'gts1' 'first operand'
         'gts2' 'second operand'
         'sub.length' 'subsequence length'
-        'excl.ratio' 'exclusion zone ratio to sub.length. Default to 0.0'
+        'excl.ratio' 'optional exclusion zone ratio to sub.length. Default to 0.0'
         'result' 'the matrix profile'
     }
 

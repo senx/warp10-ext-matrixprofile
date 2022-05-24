@@ -25,6 +25,7 @@
     'desc' 
 <'
 Fast low-cost unipotent semantic segmentation built from the result of a matrix profile.
+
 @see https://www.cs.ucr.edu/~eamonn/Segmentation_ICDM.pdf
 '>
 

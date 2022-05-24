@@ -24,8 +24,8 @@
     'tags' [ 'extensions' ]
     'desc' 
 <'
-Returns the subsequence starting from a given bucket index number.
-The input gts must be bucketized.
+Returns the subsequence GTS starting from a given bucket index number.
+The input GTS must be bucketized.
 '>
 
     'sig' [ 

@@ -24,14 +24,17 @@
     'tags' [ 'extensions' ]
     'desc' 
 <'
-Compute a row of the matrix profile.
+Given an input GTS and a bucket index, this function computes a row of the matrix profile.
 The input GTS must be bucketized and filled.
+The output is a GTS.
+The value is the minimal value found when comparing the subsequence starting at the bucket index and every other subsequences.
+The elevation is the argmin bucket index that references the most similar subsequence out of the exclusion range.
 '>
 
     'sig' [ 
 
       [ [ 'gts:GTS' 'sub.length:LONG' 'bucket.index:LONG' ] REVERSE [ 'result:GTS' ] ]
-      [ [ 'gts:GTS' 'sub.length:LONG' 'bucket.index:LONG' 'excl.ratio:DOUBLE' ] REVERSE [ 'result:GTS' ] ]
+      [ [ 'gts:GTS' 'sub.length:LONG' 'bucket.index:LONG' 'excl.ratio:DOUBLE' 'macro:MACRO' ] REVERSE [ 'result:GTS' ] ]
 
     ]
 
@@ -39,7 +42,8 @@ The input GTS must be bucketized and filled.
         'gts' 'input GTS'
         'sub.length' 'subsequence length'
         'bucket.index' 'index of the row'
-        'excl.ratio' 'exclusion zone ratio to sub.length. Default to 0.25'
+        'excl.ratio' 'optional exclusion zone ratio to sub.length. Default to 0.25'
+        'macro' 'optional custom macro used for comparing two subsequences. Expects two GTS as input and is expected to output a numerical value.'
         'result' 'the row of the matrix profile'
     }
 
