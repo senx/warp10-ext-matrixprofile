@@ -1,6 +1,6 @@
 # warp10-ext-matrixprofile
 
-The matrix profile is an operation on a time series that consist in comparing subsequences between them to discover patterns.
+The matrix profile is an operation on a time series that consists in comparing subsequences between them to discover patterns.
 
 We made a tutorial to present this extension on our blog: 
 https://blog.senx.io/matrix-profile-of-a-time-series-to-discover-patterns
