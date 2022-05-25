@@ -50,7 +50,7 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
     return ((Number) GTSHelper.valueAtIndex(gts, index)).doubleValue();
   }
 
-  public int defaultExclusionRadius(long k) {
+  private int defaultExclusionRadius(long k) {
     return ((Double) Math.ceil(k * 0.25)).intValue();
   }
 

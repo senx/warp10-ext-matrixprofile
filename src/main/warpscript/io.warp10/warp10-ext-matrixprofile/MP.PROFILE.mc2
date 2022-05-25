@@ -28,7 +28,7 @@ Compute the matrix profile of an input gts using STOMP algorithm.
 The input GTS must be bucketized and filled.
 The output is a GTS.
 The value is the matrix profile result.
-The elevation is the argmin bucket index that references the most similar subsequence out of the exclusion range.
+The elevation is the argmin bucket index that references the most similar subsequence out of the exclusion zone.
 '>
 
     'sig' [ 

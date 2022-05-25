@@ -26,11 +26,18 @@ import io.warp10.script.WarpScriptStack.Macro;
 import io.warp10.script.WarpScriptStackFunction;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 /**
  * Compute a Row of the matrix profile wrt a certain distance macro
  */
 public class RPROFILE extends NamedWarpScriptFunction implements WarpScriptStackFunction {
+
+  public static final String GTS = "gts";
+  public static final String SUBSEQUENCE_LENGTH = "sub.length";
+  public static final String BUCKET_INDEX = "bucket.index";
+  public static final String EXCLUSION_RADIUS = "excl.zone";
+  public static final String SIMILARITY_MEASURE_MACRO = "macro";
 
   public RPROFILE(String name) {
     super(name);
@@ -40,56 +47,114 @@ public class RPROFILE extends NamedWarpScriptFunction implements WarpScriptStack
     return ((Number) GTSHelper.valueAtIndex(gts, index)).doubleValue();
   }
 
+  private int defaultExclusionRadius(long k) {
+    return ((Double) Math.ceil(k * 0.25)).intValue();
+  }
+
   @Override
   public Object apply(WarpScriptStack stack) throws WarpScriptException {
 
-    Object o = stack.pop();
-
     //
-    // Optional param
+    // Parameters
     //
 
-    // custom macro
+    GeoTimeSerie gts;
+    long k; // subsequence size
+    int bucketIndex;
+    int exclusionRadius;
     Macro macro = null;
-    if (o instanceof Macro) {
-      macro = (Macro) o;
-      o = stack.pop();
-    }
 
-    // value that multiply motif size to obtain exclusion zone radius
-    double exclusionZoneRadiusRatio = 0.25;
-    if (o instanceof Double) {
-      exclusionZoneRadiusRatio = ((Number) o).doubleValue();
+    //
+    // Two type of signature:
+    //  - a MAP (with optional arguments)
+    //  - or three arguments, gts, subsequence length and bucket index
+    //
+
+    Object o = stack.pop();
+    if (o instanceof Map) {
+
+      Map params = (Map) o;
+
+      //
+      // Mandatory params
+      //
+
+      gts = (GeoTimeSerie) params.get(GTS);
+      if (null == gts) {
+        throw new WarpScriptException(getName() + " requires parameter " + GTS);
+      }
+
+      if (null == params.get(SUBSEQUENCE_LENGTH)) {
+        throw new WarpScriptException(getName() + " requires parameter " + SUBSEQUENCE_LENGTH);
+      }
+      k = (long) params.get(SUBSEQUENCE_LENGTH);
+
+      if (null == params.get(BUCKET_INDEX)) {
+        throw new WarpScriptException(getName() + " requires parameter " + BUCKET_INDEX);
+      }
+      bucketIndex = ((Number) params.get(BUCKET_INDEX)).intValue();
+
+      //
+      // Optional parameters
+      //
+
+      if (null == params.get(EXCLUSION_RADIUS)) {
+        exclusionRadius = defaultExclusionRadius(k);
+
+      } else {
+        exclusionRadius = ((Number) params.get(EXCLUSION_RADIUS)).intValue();
+      }
+
+      // nullable
+      macro = (Macro) params.get(SIMILARITY_MEASURE_MACRO);
+
+    } else {
+
+      //
+      // Second input type
+      //
+
+      if (o instanceof Macro) {
+        macro = (Macro) o;
+
+        o = stack.pop();
+      }
+      
+      //
+      // Mandatory parameters
+      //
+
+      if (!(o instanceof Long)) {
+        throw new WarpScriptException(getName() + "expects a bucket index (LONG) as third parameter.");
+      }
+      bucketIndex = ((Number) o).intValue();
+
       o = stack.pop();
+
+      if (!(o instanceof Long)) {
+        throw new WarpScriptException(getName() + "expects a subsequence size (LONG) as second parameter.");
+      }
+      k = ((Number) o).longValue();
+
+      exclusionRadius = defaultExclusionRadius(k);
+
+      o = stack.pop();
+
+      if (!(o instanceof GeoTimeSerie)) {
+        throw new WarpScriptException(getName() + " expects a GTS as first parameter.");
+      }
+
+      gts = (GeoTimeSerie) o;
+
     }
 
     //
-    // Mandatory params
+    // Sanity checks
     //
-
-    if (!(o instanceof Long)) {
-      throw new WarpScriptException(getName() + "expects a bucket index (LONG) as third parameter.");
-    }
-    int bucketIndex = ((Number) o).intValue();
-
-    o = stack.pop();
-
-    if (!(o instanceof Long)) {
-      throw new WarpScriptException(getName() + "expects a subsequence size (LONG) as second parameter.");
-    }
-    long k = ((Number) o).longValue();
 
     if (k < 2) {
       throw new WarpScriptException(getName() + " 's subsequence size must be strictly greater than 1.");
     }
-
-    o = stack.pop();
-
-    if (!(o instanceof GeoTimeSerie)) {
-      throw new WarpScriptException(getName() + " expects a GTS as first parameter.");
-    }
-
-    GeoTimeSerie gts = (GeoTimeSerie) o;
 
     if (TYPE.DOUBLE != gts.getType()) {
       throw new WarpScriptException(getName() + " can only be applied to GTS with values of type DOUBLE.");
@@ -101,6 +166,14 @@ public class RPROFILE extends NamedWarpScriptFunction implements WarpScriptStack
 
     if (gts.size() != GTSHelper.getBucketCount(gts)) {
       throw new WarpScriptException(getName() + " can only be applied to a GTS that is bucketized and filled.");
+    }
+
+    if (k >= GTSHelper.getBucketCount(gts)) {
+      throw new WarpScriptException(getName() + " requires the subsequence length to be lower than the bucketcount.");
+    }
+
+    if (exclusionRadius < 0) {
+      throw new WarpScriptException(getName() + " exclusion radios can not be negative.");
     }
 
     // sorting
@@ -161,7 +234,7 @@ public class RPROFILE extends NamedWarpScriptFunction implements WarpScriptStack
     //
 
     for (int i = 0; i < p; i++) {
-      if (Math.abs(bucketIndex - i) <= k * exclusionZoneRadiusRatio) {
+      if (Math.abs(bucketIndex - i) < exclusionRadius) {
         continue;
       }
 
