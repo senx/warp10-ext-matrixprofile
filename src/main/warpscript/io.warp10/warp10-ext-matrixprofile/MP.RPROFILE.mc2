@@ -28,7 +28,7 @@ Given an input GTS and a bucket index, this function computes a row of the matri
 The input GTS must be bucketized and filled.
 The output is a GTS.
 The value is the minimal value found when comparing the subsequence starting at the bucket index and every other subsequences.
-The elevation is the argmin bucket index that references the most similar subsequence out of the exclusion range.
+The elevation is the argmin bucket index that references the most similar subsequence out of the exclusion zone.
 '>
 
     'sig' [ 
