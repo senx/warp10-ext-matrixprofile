@@ -60,13 +60,6 @@ public class ABPROFILE extends NamedWarpScriptFunction implements WarpScriptStac
       o = stack.pop();
     }
 
-    // value that multiply motif size to obtain exclusion zone radius
-    double exclusionZoneRadiusRatio = 0.0;
-    if (o instanceof Double) {
-      exclusionZoneRadiusRatio = ((Number) o).doubleValue();
-      o = stack.pop();
-    }
-
     //
     // Mandatory params
     //
@@ -226,9 +219,6 @@ public class ABPROFILE extends NamedWarpScriptFunction implements WarpScriptStac
       int argmin = -1;
 
       for (int j = 0; j < p2; j++) {
-        if (Math.abs(i - j) < k * exclusionZoneRadiusRatio) {
-          continue;
-        }
 
         if (null == macro) {
 

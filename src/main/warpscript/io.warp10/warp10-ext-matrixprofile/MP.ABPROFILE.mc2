@@ -32,24 +32,24 @@ The value is the matrix profile result.
 The elevation is the argmin bucket index that references to the second input GTS.
 '>
 
+    // todo: implement custom macro option
     'sig' [ 
 
       [ [ 'gts1:GTS' 'gts2:GTS' 'sub.length:LONG' ] REVERSE [ 'result:GTS' ] ]
-      [ [ 'gts1:GTS' 'gts2:GTS' 'sub.length:LONG' 'excl.ratio:DOUBLE' ] REVERSE [ 'result:GTS' ] ]
+      [ [ 'gts1:GTS' 'gts2:GTS' 'sub.length:LONG' 'macro:MACRO' ] REVERSE [ 'result:GTS' ] ]
 
     ]
 
     'params' {
         'gts1' 'first operand'
         'gts2' 'second operand'
-        'sub.length' 'subsequence length'
-        'excl.ratio' 'optional exclusion zone ratio to sub.length. Default to 0.0'
+        'sub.length' 'number of points in a subsequence'
+        'macro' 'optional custom macro used for comparing two subsequences. Expects two GTS as input and is expected to output a numerical value.'
         'result' 'the matrix profile'
     }
 
     'related' [ 'MP.PROFILE' 'MP.RPROFILE' ]
     
-
     // Examples of your function use. Their could be several examples in the list. 
     'examples' [ ]
 
