@@ -49,7 +49,7 @@ The elevation is the argmin bucket index that references to the second input GTS
     }
 
     'related' [ 'MP.PROFILE' 'MP.RPROFILE' ]
-    
+
     // Examples of your function use. Their could be several examples in the list. 
     'examples' [ ]
 
