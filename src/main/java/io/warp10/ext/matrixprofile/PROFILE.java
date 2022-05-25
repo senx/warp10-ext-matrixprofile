@@ -36,12 +36,9 @@ import java.util.Map;
  */
 public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackFunction {
 
-  // todo: deprecate excl.ratio to use excl.length instead
-
   public static final String GTS = "gts";
   public static final String SUBSEQUENCE_LENGTH = "sub.length";
-  //public static final String EXCLUSION_RADIUS = "excl.length";
-  public static final String EXCLUSION_RADIUS_RATIO = "excl.ratio";
+  public static final String EXCLUSION_RADIUS = "excl.zone";
   public static final String SIMILARITY_MEASURE_MACRO = "macro";
   public static final String ROBUSTNESS = "robust";
 
@@ -53,6 +50,10 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
     return ((Number) GTSHelper.valueAtIndex(gts, index)).doubleValue();
   }
 
+  public int defaultExclusionRadius(long k) {
+    return ((Double) Math.ceil(k * 0.25)).intValue();
+  }
+
   @Override
   public Object apply(WarpScriptStack stack) throws WarpScriptException {
 
@@ -61,9 +62,8 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
     //
 
     GeoTimeSerie gts;
-    long k;
-    //long x;
-    double exclusionZoneRadiusRatio;
+    long k; // subsequence size
+    int exclusionRadius;
     WarpScriptStack.Macro distance;
     boolean robust;
 
@@ -96,10 +96,11 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
       // Optional parameters
       //
 
-      if (null == params.get(EXCLUSION_RADIUS_RATIO)) {
-        exclusionZoneRadiusRatio = 0.25;
+      if (null == params.get(EXCLUSION_RADIUS)) {
+        exclusionRadius = defaultExclusionRadius(k);
+
       } else {
-        exclusionZoneRadiusRatio = (double) params.get(EXCLUSION_RADIUS_RATIO);
+        exclusionRadius = ((Number) params.get(EXCLUSION_RADIUS)).intValue();
       }
 
       // nullable
@@ -120,26 +121,34 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
       // default
       robust = false;
       distance = null;
-      exclusionZoneRadiusRatio = 0.25;
 
-      // other
-      if (o instanceof Double) {
-        exclusionZoneRadiusRatio = ((Number) o).doubleValue();
-        o = stack.pop();
+      Object second = stack.pop();
+      if (o instanceof Long && second instanceof Long) {
+
+        exclusionRadius = ((Number) o).intValue();
+        k = ((Number) second).longValue();
+
+        Object third = stack.pop();
+
+        if (!(third instanceof GeoTimeSerie)) {
+          throw new WarpScriptException(getName() + " expects a GTS as first parameter.");
+        }
+        gts = (GeoTimeSerie) third;
+
+      } else {
+
+        if (!(o instanceof Long)) {
+          throw new WarpScriptException(getName() + " expects a subsequence size (LONG) as second parameter.");
+        }
+        k = ((Number) o).longValue();
+        exclusionRadius = defaultExclusionRadius(k);
+
+        if (!(second instanceof GeoTimeSerie)) {
+          throw new WarpScriptException(getName() + " expects a GTS as first parameter.");
+        }
+        gts = (GeoTimeSerie) second;
       }
 
-      if (!(o instanceof Long)) {
-        throw new WarpScriptException(getName() + " expects a subsequence size (LONG) as second parameter.");
-      }
-      k = ((Number) o).longValue();
-
-      o = stack.pop();
-
-      if (!(o instanceof GeoTimeSerie)) {
-        throw new WarpScriptException(getName() + " expects a GTS as first parameter.");
-      }
-
-      gts = (GeoTimeSerie) o;
     }
 
     //
@@ -164,6 +173,10 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
 
     if (k >= GTSHelper.getBucketCount(gts)) {
       throw new WarpScriptException(getName() + " requires the subsequence length to be lower than the bucketcount.");
+    }
+
+    if (exclusionRadius < 0) {
+      throw new WarpScriptException(getName() + " exclusion radios can not be negative.");
     }
 
     // maxsize check
@@ -254,7 +267,7 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
     GTSHelper.rename(res, gts.getName() + "::profile");
 
     // loop
-    int firstDiagNotInExclusionZone = ((Double) Math.ceil(k * exclusionZoneRadiusRatio)).intValue();
+    int firstDiagNotInExclusionZone = exclusionRadius;
     for (int t = firstDiagNotInExclusionZone; t < p; t++) {
 
       // dot product variable use for one diagonal traversal

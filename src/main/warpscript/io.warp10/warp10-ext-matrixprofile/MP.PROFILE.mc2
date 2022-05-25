@@ -34,13 +34,13 @@ The elevation is the argmin bucket index that references the most similar subseq
     'sig' [ 
 
       [ [ 'gts:GTS' 'sub.length:LONG' ] REVERSE [ 'result:GTS' ] ]
-      [ [ 'gts:GTS' 'sub.length:LONG' 'excl.ratio:DOUBLE' ] REVERSE [ 'result:GTS' ] ]
+      [ [ 'gts:GTS' 'sub.length:LONG' 'excl.zone:LONG' ] REVERSE [ 'result:GTS' ] ]
 
       // map input
       [ [ {
       'robust' 'robust:LONG'
       'macro' 'macro:MACRO'
-      'excl.ratio' 'excl.ratio:DOUBLE'
+      'excl.zone' 'excl.zone:LONG'
       'sub.length' 'sub.length:LONG'
       'gts' 'gts:GTS'
       } ] [ 'result:GTS' ] ]
@@ -48,17 +48,16 @@ The elevation is the argmin bucket index that references the most similar subseq
 
     'params' {
         'gts' 'input GTS'
-        'sub.length' 'subsequence length'
-        'excl.ratio' 'optional exclusion zone ratio to sub.length. Default to 0.25'
-        'macro' 'optional custom macro used for comparing two subsequences. Expects two GTS as input and is expected to output a numerical value.'
-        'robust' 'optional flag. If true, the second minimum will be used to produce the matrix profile.'
+        'sub.length' 'number of points in a subsequence'
+        'excl.zone' 'optional radius size of the exclusion zone in number of points (counting the center). If not set, default to ceil(sub.length / 4)'
+        'macro' 'optional custom macro used for comparing two subsequences. Expects two GTS as input and is expected to output a numerical value'
+        'robust' 'optional flag. If true, the second minimum will be used to produce the matrix profile'
         'result' 'the matrix profile'
     }
 
     'related' [ 'MP.RPROFILE' 'MP.ABPROFILE' 'MP.FLUSS' '@senx/profile/motifs' '@senx/profile/discords' '@senx/profile/dashboardSpec' ]
-    
 
-    // Examples of your function use. Their could be several examples in the list. 
+    // Examples of your function use. There could be several examples in the list.
     'examples' [ ]
 
     // if your extension needs more configurations, add the configuration keys in this list:
