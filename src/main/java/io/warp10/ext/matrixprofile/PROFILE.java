@@ -38,7 +38,7 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
 
   public static final String GTS = "gts";
   public static final String SUBSEQUENCE_LENGTH = "sub.length";
-  public static final String EXCLUSION_RADIUS = "excl.zone";
+  public static final String EXCLUSION_RADIUS = "excl.radius";
   public static final String SIMILARITY_MEASURE_MACRO = "macro";
   public static final String ROBUSTNESS = "robust";
 
