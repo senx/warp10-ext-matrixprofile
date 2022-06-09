@@ -207,6 +207,8 @@ public class ABPROFILE extends NamedWarpScriptFunction implements WarpScriptStac
     // meta
     res.setMetadata(gts1.getMetadata());
     GTSHelper.rename(res, gts1.getName() + "::abprofile::" + gts2.getName());
+    res.getMetadata().getAttributes().put(".profile.function", getName());
+    res.getMetadata().getAttributes().put("." + PROFILE.SUBSEQUENCE_LENGTH, String.valueOf(k));
 
     //
     // Fill res

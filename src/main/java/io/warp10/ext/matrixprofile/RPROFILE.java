@@ -33,11 +33,11 @@ import java.util.Map;
  */
 public class RPROFILE extends NamedWarpScriptFunction implements WarpScriptStackFunction {
 
-  public static final String GTS = "gts";
-  public static final String SUBSEQUENCE_LENGTH = "sub.length";
+  public static final String GTS = PROFILE.GTS;
+  public static final String SUBSEQUENCE_LENGTH = PROFILE.SUBSEQUENCE_LENGTH;
   public static final String BUCKET_INDEX = "bucket.index";
-  public static final String EXCLUSION_RADIUS = "excl.radius";
-  public static final String SIMILARITY_MEASURE_MACRO = "macro";
+  public static final String EXCLUSION_RADIUS = PROFILE.EXCLUSION_RADIUS;
+  public static final String SIMILARITY_MEASURE_MACRO = PROFILE.SIMILARITY_MEASURE_MACRO;
 
   public RPROFILE(String name) {
     super(name);
@@ -228,6 +228,9 @@ public class RPROFILE extends NamedWarpScriptFunction implements WarpScriptStack
     // meta
     res.setMetadata(gts.getMetadata());
     GTSHelper.rename(res, gts.getName() + "::rprofile::" + bucketIndex);
+    res.getMetadata().getAttributes().put(".profile.function", getName());
+    res.getMetadata().getAttributes().put("." + SUBSEQUENCE_LENGTH, String.valueOf(k));
+    res.getMetadata().getAttributes().put("." + EXCLUSION_RADIUS, String.valueOf(exclusionRadius));
 
     //
     // Fill res

@@ -20,6 +20,7 @@ import io.warp10.WarpConfig;
 import io.warp10.continuum.gts.GeoTimeSerie.TYPE;
 import io.warp10.continuum.gts.GeoTimeSerie;
 import io.warp10.continuum.gts.GTSHelper;
+import io.warp10.continuum.store.thrift.data.Metadata;
 import io.warp10.script.NamedWarpScriptFunction;
 import io.warp10.script.WarpScriptException;
 import io.warp10.script.WarpScriptStack;
@@ -265,6 +266,17 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
     // meta
     res.setMetadata(gts.getMetadata());
     GTSHelper.rename(res, gts.getName() + "::profile");
+    res.getMetadata().getAttributes().put(".profile.function", getName());
+    res.getMetadata().getAttributes().put("." + SUBSEQUENCE_LENGTH, String.valueOf(k));
+    res.getMetadata().getAttributes().put("." + EXCLUSION_RADIUS, String.valueOf(exclusionRadius));
+
+    if (null != distance) {
+      res.getMetadata().getAttributes().put(".custom.macro", "true");
+    }
+
+    if (robust) {
+      res.getMetadata().getAttributes().put("." + ROBUSTNESS, "true");
+    }
 
     // loop
     int firstDiagNotInExclusionZone = exclusionRadius;
