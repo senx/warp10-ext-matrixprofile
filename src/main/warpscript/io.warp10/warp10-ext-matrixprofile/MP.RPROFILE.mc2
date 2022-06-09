@@ -38,7 +38,7 @@ The elevation is the current bucket index.
 
       // map input
       [ [ {
-      'excl.zone' 'excl.zone:LONG'
+      'excl.zone' 'excl.radius:LONG'
       'macro' 'macro:MACRO'
       'bucket.index' 'bucket.index:LONG'
       'sub.length' 'sub.length:LONG'

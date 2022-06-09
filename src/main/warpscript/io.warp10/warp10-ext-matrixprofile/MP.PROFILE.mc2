@@ -41,7 +41,7 @@ The elevation is the argmin bucket index that references the most similar subseq
       'direction' 'direction:STRING'
       'robust' 'robust:LONG'
       'macro' 'macro:MACRO'
-      'excl.zone' 'excl.zone:LONG'
+      'excl.zone' 'excl.radius:LONG'
       'sub.length' 'sub.length:LONG'
       'gts' 'gts:GTS'
       } ] [ 'result:GTS' ] ]
