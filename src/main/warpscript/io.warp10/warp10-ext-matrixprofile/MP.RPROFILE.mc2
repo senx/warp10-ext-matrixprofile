@@ -38,6 +38,7 @@ The elevation is the current bucket index.
 
       // map input
       [ [ {
+      'direction' 'direction:STRING'
       'excl.zone' 'excl.radius:LONG'
       'macro' 'macro:MACRO'
       'bucket.index' 'bucket.index:LONG'
@@ -53,6 +54,7 @@ The elevation is the current bucket index.
         'bucket.index' 'index of the row'
         'macro' 'optional custom macro used for comparing two subsequences. Expects two GTS as input and is expected to output a numerical value.'
         'excl.zone' 'optional radius size of the exclusion zone in number of points (counting the center). If not set, default to default to ceil(sub.length / 4)'
+        'direction' 'optional string. If LEFT, compare only with older subsequences ; if RIGHT, compare only with more recent subsequences. Default to BOTH.'
         'result' 'the row of the matrix profile'
     }
 
