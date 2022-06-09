@@ -38,6 +38,7 @@ The elevation is the argmin bucket index that references the most similar subseq
 
       // map input
       [ [ {
+      'direction' 'direction:STRING'
       'robust' 'robust:LONG'
       'macro' 'macro:MACRO'
       'excl.zone' 'excl.zone:LONG'
@@ -52,6 +53,7 @@ The elevation is the argmin bucket index that references the most similar subseq
         'excl.zone' 'optional radius size of the exclusion zone in number of points (counting the center). If not set, default to ceil(sub.length / 4)'
         'macro' 'optional custom macro used for comparing two subsequences. Expects two GTS as input and is expected to output a numerical value'
         'robust' 'optional flag. If true, the second minimum will be used to produce the matrix profile'
+        'direction' 'optional string. If LEFT, compare only with older subsequences ; if RIGHT, compare only with more recent subsequences. Default to BOTH.'
         'result' 'the matrix profile'
     }
 

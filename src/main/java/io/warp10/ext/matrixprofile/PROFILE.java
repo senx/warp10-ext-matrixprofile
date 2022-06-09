@@ -20,7 +20,6 @@ import io.warp10.WarpConfig;
 import io.warp10.continuum.gts.GeoTimeSerie.TYPE;
 import io.warp10.continuum.gts.GeoTimeSerie;
 import io.warp10.continuum.gts.GTSHelper;
-import io.warp10.continuum.store.thrift.data.Metadata;
 import io.warp10.script.NamedWarpScriptFunction;
 import io.warp10.script.WarpScriptException;
 import io.warp10.script.WarpScriptStack;
@@ -42,6 +41,12 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
   public static final String EXCLUSION_RADIUS = "excl.radius";
   public static final String SIMILARITY_MEASURE_MACRO = "macro";
   public static final String ROBUSTNESS = "robust";
+  public static final String DIRECTION = "direction";
+  public enum Direction {
+    LEFT,
+    RIGHT,
+    BOTH
+  }
 
   public PROFILE(String name) {
     super(name);
@@ -67,6 +72,7 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
     int exclusionRadius;
     WarpScriptStack.Macro distance;
     boolean robust;
+    Direction direction = Direction.BOTH;
 
     //
     // Two type of signature:
@@ -111,6 +117,10 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
         robust = false;
       } else {
         robust = Boolean.TRUE.equals(params.get(ROBUSTNESS));
+      }
+
+      if (null != params.get(DIRECTION)) {
+        direction = Direction.valueOf((String) params.get(DIRECTION));
       }
 
     } else {
@@ -278,6 +288,10 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
       res.getMetadata().getAttributes().put("." + ROBUSTNESS, "true");
     }
 
+    if (Direction.BOTH != direction) {
+      res.getMetadata().getAttributes().put("." + DIRECTION, direction.name());
+    }
+
     // loop
     int firstDiagNotInExclusionZone = exclusionRadius;
     for (int t = firstDiagNotInExclusionZone; t < p; t++) {
@@ -321,21 +335,25 @@ public class PROFILE extends NamedWarpScriptFunction implements WarpScriptStackF
 
         // compare and set
         // in case of tie: closest index since we see lower diagonal first
-        if (d < rowMinValue[i]) {
-          rowMinValue[i] = d;
-          rowMinIndex[i] = j;
-        } else if (robust && d < rowMin2Value[i]) {
-          rowMin2Value[i] = d;
-          rowMin2Index[i] = j;
+        if (direction.LEFT != direction) {
+          if (d < rowMinValue[i]) {
+            rowMinValue[i] = d;
+            rowMinIndex[i] = j;
+          } else if (robust && d < rowMin2Value[i]) {
+            rowMin2Value[i] = d;
+            rowMin2Index[i] = j;
+          }
         }
 
         // symmetrical
-        if (d < rowMinValue[j]) {
-          rowMinValue[j] = d;
-          rowMinIndex[j] = i;
-        } else if (robust && d < rowMin2Value[j]) {
-          rowMin2Value[j] = d;
-          rowMin2Index[j] = i;
+        if (direction.RIGHT != direction) {
+          if (d < rowMinValue[j]) {
+            rowMinValue[j] = d;
+            rowMinIndex[j] = i;
+          } else if (robust && d < rowMin2Value[j]) {
+            rowMin2Value[j] = d;
+            rowMin2Index[j] = i;
+          }
         }
       }
     }
