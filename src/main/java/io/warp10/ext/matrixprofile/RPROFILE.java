@@ -38,6 +38,7 @@ public class RPROFILE extends NamedWarpScriptFunction implements WarpScriptStack
   public static final String BUCKET_INDEX = "bucket.index";
   public static final String EXCLUSION_RADIUS = PROFILE.EXCLUSION_RADIUS;
   public static final String SIMILARITY_MEASURE_MACRO = PROFILE.SIMILARITY_MEASURE_MACRO;
+  public static final String DIRECTION = PROFILE.DIRECTION;
 
   public RPROFILE(String name) {
     super(name);
@@ -63,6 +64,7 @@ public class RPROFILE extends NamedWarpScriptFunction implements WarpScriptStack
     int bucketIndex;
     int exclusionRadius;
     Macro macro = null;
+    PROFILE.Direction direction = PROFILE.Direction.BOTH;
 
     //
     // Two type of signature:
@@ -107,6 +109,10 @@ public class RPROFILE extends NamedWarpScriptFunction implements WarpScriptStack
 
       // nullable
       macro = (Macro) params.get(SIMILARITY_MEASURE_MACRO);
+
+      if (null != params.get(DIRECTION)) {
+        direction = PROFILE.Direction.valueOf((String) params.get(DIRECTION));
+      }
 
     } else {
 
@@ -232,11 +238,23 @@ public class RPROFILE extends NamedWarpScriptFunction implements WarpScriptStack
     res.getMetadata().getAttributes().put("." + SUBSEQUENCE_LENGTH, String.valueOf(k));
     res.getMetadata().getAttributes().put("." + EXCLUSION_RADIUS, String.valueOf(exclusionRadius));
 
+    if (null != macro) {
+      res.getMetadata().getAttributes().put(".custom.macro", "true");
+    }
+
+    if (PROFILE.Direction.BOTH != direction) {
+      res.getMetadata().getAttributes().put("." + DIRECTION, direction.name());
+    }
+
+
     //
     // Fill res
     //
 
-    for (int i = 0; i < p; i++) {
+    int start = PROFILE.Direction.RIGHT == direction ? bucketIndex : 0;
+    int end = PROFILE.Direction.LEFT == direction ? bucketIndex + 1 : p;
+
+    for (int i = start; i < end; i++) {
       if (Math.abs(bucketIndex - i) < exclusionRadius) {
         continue;
       }

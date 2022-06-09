@@ -210,6 +210,10 @@ public class ABPROFILE extends NamedWarpScriptFunction implements WarpScriptStac
     res.getMetadata().getAttributes().put(".profile.function", getName());
     res.getMetadata().getAttributes().put("." + PROFILE.SUBSEQUENCE_LENGTH, String.valueOf(k));
 
+    if (null != macro) {
+      res.getMetadata().getAttributes().put(".custom.macro", "true");
+    }
+
     //
     // Fill res
     //
