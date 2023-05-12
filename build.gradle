@@ -1,5 +1,5 @@
 //
-//   Copyright 2019-2022  SenX S.A.S.
+//   Copyright 2019-2023  SenX S.A.S.
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
@@ -48,8 +48,9 @@ configurations {
 // Dependencies of the project
 //
 dependencies {
-    compileOnly 'io.warp10:warpscript:2.10.1'
+    provided 'io.warp10:warpscript:+'
 
+    testImplementation 'io.warp10:warpscript:3.0.0-beta0'
     testImplementation 'junit:junit:4.12'
 }
 
