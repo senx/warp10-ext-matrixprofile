@@ -24,4 +24,3 @@ https://github.com/senx/warp10-ext-matrixprofile/blob/master/io.warp10-warp10-ex
 
 https://www.cs.ucr.edu/~eamonn/MatrixProfile.html
 
-More information in the documentation [MP.PROFILE](https://warpfleet.senx.io/browse/io.warp10/warp10-ext-matrixprofile/0.2.0/io.warp10/warp10-ext-matrixprofile/warp10-ext-matrixprofile.mc2)
