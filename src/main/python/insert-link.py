@@ -53,7 +53,7 @@ for filename in os.listdir(directory):
     function = all_matches[0][1]
 
     # Sentence to append
-    sentence = f"\nMore information in the documentation [{function}](https://warpfleet.senx.io/browse/io.warp10/warp10-ext-forecasting/2.0.0/io.warp10/warp10-ext-forecasting/{NAME}.mc2)\n"
+    sentence = f"\nMore information in the documentation [{function}](https://warpfleet.senx.io/browse/io.warp10/warp10-ext-matrixprofile/0.2.0/io.warp10/warp10-ext-matrixprofile/{NAME}.mc2)\n"
 
     # Append the sentence to the file
     with open(filepath, 'a', encoding='utf-8') as file:
